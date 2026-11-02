@@ -8,30 +8,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
-/*
- * Capstone skeleton – personal finance tracker.
- * ------------------------------------------------
- * File format  (pipe-delimited)
- *     yyyy-MM-dd|HH:mm:ss|description|vendor|amount
- * A deposit has a positive amount; a payment is stored
- * as a negative amount.
- *
- * TODO: create the Transaction class in this package first.
- *       One object = one line of the file. Decide its fields from
- *       the file format above, add a constructor and getters.
- *       This class does not compile until Transaction exists.
- */
 public class FinancialTracker {
 
     private static ArrayList<Transaction> ledger = new ArrayList<>();
 
-    /* ------------------------------------------------------------------
-       Shared data and formatters
-       ------------------------------------------------------------------ */
     private static final ArrayList<Transaction> transactions = new ArrayList<>();
     private static final String FILE_NAME = "transactions.csv";
 
@@ -43,9 +25,6 @@ public class FinancialTracker {
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern(TIME_PATTERN);
     private static final DateTimeFormatter DATETIME_FMT = DateTimeFormatter.ofPattern(DATETIME_PATTERN);
 
-    /* ------------------------------------------------------------------
-       Main menu
-       ------------------------------------------------------------------ */
     public static void main(String[] args) {
         loadTransactions(FILE_NAME);
 
@@ -72,7 +51,6 @@ public class FinancialTracker {
         }
         scanner.close();
     }
-
 
     public static void loadTransactions(String fileName) {
         try {
@@ -188,13 +166,10 @@ public class FinancialTracker {
         }
     }
 
-    /* ------------------------------------------------------------------
-       Ledger menu
-       ------------------------------------------------------------------ */
     private static void ledgerMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("Ledger");
+            System.out.println("\nLedger");
             System.out.println("Choose an option:");
             System.out.println("A) All");
             System.out.println("D) Deposits");
@@ -216,11 +191,21 @@ public class FinancialTracker {
     }
 
     private static void displayLedger(String transactionFilter) {
+        List<Transaction> sortedLedger = new ArrayList<>(ledger);
+
+        sortedLedger.sort(
+                Comparator.comparing((Transaction transaction) ->
+                                LocalDateTime.parse(
+                                        transaction.getDate() + " " + transaction.getTime(),
+                                        DATETIME_FMT))
+                        .reversed()
+        );
+
         System.out.printf("\n%-12s %-12s %-30s %-20s %-10s%n",
                 "DATE", "TIME", "DESCRIPTION", "VENDOR", "AMOUNT");
         System.out.println("-----------------------------------------------------------------------------------------");
 
-        for (Transaction transaction : ledger) {
+        for (Transaction transaction : sortedLedger) {
             double amount = transaction.getAmount();
             if (transactionFilter.equals("Deposit") && amount <= 0) {
                 continue;
@@ -235,15 +220,9 @@ public class FinancialTracker {
                     transaction.getTime(),
                     transaction.getdescription(),
                     transaction.getvendor(),
-                    transaction.getAmount());
+                    amount);
         }
     }
-
-
-
-
-
-
 
 
     private static void reportsMenu(Scanner scanner) {
@@ -262,12 +241,12 @@ public class FinancialTracker {
             String input = scanner.nextLine().trim();
 
             switch (input) {
-                case "1" -> {/* TODO – month-to-date report */ }
-                case "2" -> {/* TODO – previous month report */ }
-                case "3" -> {/* TODO – year-to-date report   */ }
-                case "4" -> {/* TODO – previous year report  */ }
-                case "5" -> {/* TODO – prompt for vendor then report */ }
-                case "6" -> customSearch(scanner);
+                // case "1" -> filterTransactionsByDate();
+                // case "2" -> filterTransactionsByDate();
+                // case "3" -> filterTransactionsByDate();
+                // case "4" -> filterTransactionsByDate();
+                // case "5" -> filterTransactionsByDate();
+                // case "6" -> customSearch(scanner);
                 case "0" -> running = false;
                 default -> System.out.println("Invalid option");
             }
@@ -277,8 +256,56 @@ public class FinancialTracker {
     /* ------------------------------------------------------------------
        Reporting helpers
        ------------------------------------------------------------------ */
-    private static void filterTransactionsByDate(LocalDate start, LocalDate end) {
-        // TODO – iterate transactions, print those within the range
+    private static ArrayList<Transaction> filterTransactionsByDate(
+            List<Transaction> transactions,
+            String dateFilter) {
+
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+
+        switch (dateFilter) {
+            case "MonthToDate":
+                startDate = LocalDate.now().withDayOfMonth(1);
+                endDate = LocalDate.now();
+                break;
+            case "PrevMonth":
+                startDate = LocalDate.now()
+                        .minusMonths(1)
+                        .withDayOfMonth(1);
+                endDate = LocalDate.now()
+                        .withDayOfMonth(1)
+                        .minusDays(1);
+                break;
+            case "YearToDate":
+                startDate = LocalDate.now().withDayOfYear(1);
+                endDate = LocalDate.now();
+                break;
+            case "PrevYear":
+                startDate = LocalDate.now()
+                        .minusYears(1)
+                        .withDayOfYear(1);
+                endDate = LocalDate.now()
+                        .withDayOfYear(1)
+                        .minusDays(1);
+                break;
+        }
+
+        ArrayList<Transaction> filteredTransactions = new ArrayList<>();
+
+        for (Transaction transaction : transactions) {
+
+            LocalDate transactionDate =
+                    LocalDate.parse(transaction.getDate(), DATE_FMT);
+
+            if (transactionDate.isBefore(startDate)
+                    || transactionDate.isAfter(endDate)) {
+                continue;
+            }
+
+            filteredTransactions.add(transaction);
+        }
+
+        return filteredTransactions;
     }
 
     private static void filterTransactionsByVendor(String vendor) {
