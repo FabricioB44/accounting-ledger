@@ -180,9 +180,9 @@ public class FinancialTracker {
             String input = scanner.nextLine().trim();
 
             switch (input.toUpperCase()) {
-                case "A" -> displayLedger("All");
-                case "D" -> displayLedger("Deposit");
-                case "P" -> displayLedger("Payment");
+                case "A" -> displayLedger(null, null);
+                case "D" -> displayLedger("Deposit", null);
+                case "P" -> displayLedger("Payment", null);
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
                 default -> System.out.println("Invalid option");
@@ -190,7 +190,14 @@ public class FinancialTracker {
         }
     }
 
-    private static void displayLedger(String transactionFilter) {
+    private static void displayLedger(String transactionFilter, String dateFilter) {
+        List<Transaction> filteredLedger = List.of();
+
+        if (dateFilter != null){
+            filteredLedger = filterTransactionsByDate(ledger, dateFilter);
+        }
+
+
         List<Transaction> sortedLedger = new ArrayList<>(ledger);
 
         sortedLedger.sort(
@@ -205,13 +212,13 @@ public class FinancialTracker {
                 "DATE", "TIME", "DESCRIPTION", "VENDOR", "AMOUNT");
         System.out.println("-----------------------------------------------------------------------------------------");
 
-        for (Transaction transaction : sortedLedger) {
+        for (Transaction transaction : filteredLedger) {
             double amount = transaction.getAmount();
-            if (transactionFilter.equals("Deposit") && amount <= 0) {
+            if ("Deposit".equals(transactionFilter) && amount <= 0) {
                 continue;
             }
 
-            if (transactionFilter.equals("Payment") && amount >= 0) {
+            if ("Payment".equals(transactionFilter) && amount >= 0) {
                 continue;
             }
 
@@ -228,7 +235,7 @@ public class FinancialTracker {
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("Reports");
+            System.out.println("\nReports");
             System.out.println("Choose an option:");
             System.out.println("1) Month To Date");
             System.out.println("2) Previous Month");
@@ -241,10 +248,10 @@ public class FinancialTracker {
             String input = scanner.nextLine().trim();
 
             switch (input) {
-                // case "1" -> filterTransactionsByDate();
-                // case "2" -> filterTransactionsByDate();
-                // case "3" -> filterTransactionsByDate();
-                // case "4" -> filterTransactionsByDate();
+                case "1" -> displayLedger(null, "MonthToDate");
+                case "2" -> displayLedger(null, "PrevMonth");
+                case "3" -> displayLedger(null, "YearToDate");
+                case "4" -> displayLedger(null, "PrevYear");
                 // case "5" -> filterTransactionsByDate();
                 // case "6" -> customSearch(scanner);
                 case "0" -> running = false;
@@ -256,6 +263,13 @@ public class FinancialTracker {
     /* ------------------------------------------------------------------
        Reporting helpers
        ------------------------------------------------------------------ */
+    // private static ArrayList<Transaction> filterByTransactions(List<Transaction> transactions,
+    //                                                           String transactionFilter) {
+
+        //return();
+    //}
+
+
     private static ArrayList<Transaction> filterTransactionsByDate(
             List<Transaction> transactions,
             String dateFilter) {
