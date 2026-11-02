@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 
 /*
@@ -113,7 +114,7 @@ public class FinancialTracker {
 
         while (true) {
             try {
-                System.out.println("Please write the date + time you would like to make the deposit (yyyy-MM-dd HH:mm:ss): ");
+                System.out.printf("Please write the date + time you would like to make the %s (yyyy-MM-dd HH:mm:ss): \n", transactionType.toLowerCase());
                 String dateTime = scanner.nextLine();
                 LocalDateTime dateTimeObj = LocalDateTime.parse(dateTime, DATETIME_FMT);
 
@@ -127,7 +128,7 @@ public class FinancialTracker {
 
         while (true) {
             try {
-                System.out.println("Description of the transaction: ");
+                System.out.printf("%s description: ", transactionType);
                 description = scanner.nextLine();
                 if (!description.isEmpty()) {
                     break;
@@ -140,7 +141,7 @@ public class FinancialTracker {
 
         while (true) {
             try {
-                System.out.println("Name of the vendor: ");
+                System.out.print("Vendor name: ");
                 vendor = scanner.nextLine();
                 if (!vendor.isEmpty()) {
                     break;
@@ -153,35 +154,28 @@ public class FinancialTracker {
 
         while (true) {
             try {
-                System.out.println("Amount to deposit: ");
+                System.out.printf("%s amount: ", transactionType);
                 amount = Double.parseDouble(scanner.nextLine());
                 if (amount > 0) {
+                    amount = transactionType.equals("Payment")
+                            ? -Math.abs(amount)
+                            : amount;
                     break;
                 }
-                System.out.println("Error: Amount must be greater than zero.");
+                System.out.printf("Error: Amount must be greater than zero.");
             } catch (NumberFormatException e) {
                 System.out.println("Error: invalid input.");
             }
         }
 
-        Transaction newDeposit =
+        Transaction newTransaction =
                 new Transaction(date, time, description, vendor, amount);
 
 
-        writeToFile(newDeposit);
+        writeToFile(newTransaction);
 
-        ledger.add(newDeposit);
+        ledger.add(newTransaction);
     }
-
-    /**
-     * Same prompts as addDeposit.
-     * Amount must be entered as a positive number,
-     * then converted to a negative amount before storing.
-     */
-    private static void addPayment(Scanner scanner) {
-        // TODO
-    }
-
 
     private static void writeToFile(Transaction transaction){
         try {
