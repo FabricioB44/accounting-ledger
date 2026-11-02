@@ -1,5 +1,7 @@
 package com.pluralsight;
 
+import java.nio.charset.StandardCharsets;
+
 public class Transaction {
     private String date;
     private String time;
@@ -54,6 +56,17 @@ public class Transaction {
 
     public double getAmount() {
         return amount;
+    }
+
+    public String toString() {
+        return String.format(
+                "Date: %s | Time: %s | Memo: %s | Recipient: %s | Amount: %.2f",
+                date,
+                time,
+                memo,
+                recipient,
+                amount
+        );
     }
 
 }

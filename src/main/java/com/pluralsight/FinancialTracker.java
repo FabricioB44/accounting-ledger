@@ -1,6 +1,10 @@
 package com.pluralsight;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -75,10 +79,39 @@ public class FinancialTracker {
      * • If the file doesn’t exist, create an empty one so that future writes succeed.
      * • Each line looks like: date|time|description|vendor|amount
      */
-    public static void loadTransactions(String fileName) {
-        // TODO: create file if it does not exist, then read each line,
-        //       parse the five fields, build a Transaction object,
-        //       and add it to the transactions list.
+    public static ArrayList<Transaction> loadTransactions(String fileName) {
+        try {
+            ArrayList<Transaction> ledger = new ArrayList<>();
+
+            Path filePath = Path.of(fileName);
+
+            if (Files.notExists(filePath)) {
+                Files.createFile(filePath);
+            }
+
+            FileReader fileReader = new FileReader(fileName);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            String line;
+
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                String date = parts[0];
+                String time = parts[1];
+                String memo = parts[2];
+                String recipient = parts[3];
+                double amount = Double.parseDouble(parts[4]);
+
+                Transaction newTransaction = new Transaction(date, time, memo, recipient, amount);
+                ledger.add(newTransaction);
+            }
+            // String printedLedger = ledger.toString();
+            // System.out.println(printedLedger);
+            return ledger;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /* ------------------------------------------------------------------
