@@ -205,9 +205,9 @@ public class FinancialTracker {
             String input = scanner.nextLine().trim();
 
             switch (input.toUpperCase()) {
-                case "A" -> displayLedger();
-                case "D" -> displayDeposits();
-                case "P" -> displayPayments();
+                case "A" -> displayLedger("All");
+                case "D" -> displayLedger("Deposit");
+                case "P" -> displayLedger("Payment");
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
                 default -> System.out.println("Invalid option");
@@ -215,18 +215,37 @@ public class FinancialTracker {
         }
     }
 
-    /* ------------------------------------------------------------------
-       Display helpers: show data in neat columns
-       ------------------------------------------------------------------ */
-    private static void displayLedger() { /* TODO – print all transactions in column format, newest first */ }
+    private static void displayLedger(String transactionFilter) {
+        System.out.printf("\n%-12s %-12s %-30s %-20s %-10s%n",
+                "DATE", "TIME", "DESCRIPTION", "VENDOR", "AMOUNT");
+        System.out.println("-----------------------------------------------------------------------------------------");
 
-    private static void displayDeposits() { /* TODO – only amount > 0               */ }
+        for (Transaction transaction : ledger) {
+            double amount = transaction.getAmount();
+            if (transactionFilter.equals("Deposit") && amount <= 0) {
+                continue;
+            }
 
-    private static void displayPayments() { /* TODO – only amount < 0               */ }
+            if (transactionFilter.equals("Payment") && amount >= 0) {
+                continue;
+            }
 
-    /* ------------------------------------------------------------------
-       Reports menu
-       ------------------------------------------------------------------ */
+            System.out.printf("%-12s %-12s %-30s %-20s $%-10.2f%n",
+                    transaction.getDate(),
+                    transaction.getTime(),
+                    transaction.getdescription(),
+                    transaction.getvendor(),
+                    transaction.getAmount());
+        }
+    }
+
+
+
+
+
+
+
+
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
