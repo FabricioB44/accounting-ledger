@@ -55,4 +55,5 @@ public class Transaction {
     public double getAmount() {
         return amount;
     }
+
 }
