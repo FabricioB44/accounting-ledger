@@ -1,13 +1,13 @@
 package com.pluralsight;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -25,6 +25,8 @@ import java.util.Scanner;
  *       This class does not compile until Transaction exists.
  */
 public class FinancialTracker {
+
+    private static ArrayList<Transaction> ledger = new ArrayList<>();
 
     /* ------------------------------------------------------------------
        Shared data and formatters
@@ -60,8 +62,8 @@ public class FinancialTracker {
             String input = scanner.nextLine().trim();
 
             switch (input.toUpperCase()) {
-                case "D" -> addDeposit(scanner);
-                case "P" -> addPayment(scanner);
+                case "D" -> addTransaction(scanner,"Deposit");
+                case "P" -> addTransaction(scanner, "Payment");
                 case "L" -> ledgerMenu(scanner);
                 case "X" -> running = false;
                 default -> System.out.println("Invalid option");
@@ -70,18 +72,10 @@ public class FinancialTracker {
         scanner.close();
     }
 
-    /* ------------------------------------------------------------------
-       File I/O
-       ------------------------------------------------------------------ */
 
-    /**
-     * Load transactions from FILE_NAME.
-     * • If the file doesn’t exist, create an empty one so that future writes succeed.
-     * • Each line looks like: date|time|description|vendor|amount
-     */
-    public static ArrayList<Transaction> loadTransactions(String fileName) {
+    public static void loadTransactions(String fileName) {
         try {
-            ArrayList<Transaction> ledger = new ArrayList<>();
+            ledger.clear();
 
             Path filePath = Path.of(fileName);
 
@@ -98,34 +92,85 @@ public class FinancialTracker {
                 String[] parts = line.split("\\|");
                 String date = parts[0];
                 String time = parts[1];
-                String memo = parts[2];
-                String recipient = parts[3];
+                String description = parts[2];
+                String vendor = parts[3];
                 double amount = Double.parseDouble(parts[4]);
 
-                Transaction newTransaction = new Transaction(date, time, memo, recipient, amount);
+                Transaction newTransaction = new Transaction(date, time, description, vendor, amount);
                 ledger.add(newTransaction);
             }
-            // String printedLedger = ledger.toString();
-            // System.out.println(printedLedger);
-            return ledger;
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    /* ------------------------------------------------------------------
-       Add new transactions
-       ------------------------------------------------------------------ */
+    private static void addTransaction(Scanner scanner, String transactionType) {
+        String date = null;
+        String time = null;
+        String description = null;
+        String vendor = null;
+        double amount = 0.00;
 
-    /**
-     * Prompt for ONE date+time string in the format
-     * "yyyy-MM-dd HH:mm:ss", plus description, vendor, amount.
-     * Validate that the amount entered is positive.
-     * Store the amount as-is (positive) and append to the file.
-     */
-    private static void addDeposit(Scanner scanner) {
-        // TODO
+        while (true) {
+            try {
+                System.out.println("Please write the date + time you would like to make the deposit (yyyy-MM-dd HH:mm:ss): ");
+                String dateTime = scanner.nextLine();
+                LocalDateTime dateTimeObj = LocalDateTime.parse(dateTime, DATETIME_FMT);
+
+                date = dateTimeObj.format(DATE_FMT);
+                time = dateTimeObj.format(TIME_FMT);
+                break;
+            } catch (DateTimeParseException e) {
+                System.out.println("Error: invalid date/time format.");
+            }
+        }
+
+        while (true) {
+            try {
+                System.out.println("Description of the transaction: ");
+                description = scanner.nextLine();
+                if (!description.isEmpty()) {
+                    break;
+                }
+                System.out.println("Error: Description cannot be empty");
+            } catch (NumberFormatException e) {
+                System.out.println("Error: invalid input.");
+            }
+        }
+
+        while (true) {
+            try {
+                System.out.println("Name of the vendor: ");
+                vendor = scanner.nextLine();
+                if (!vendor.isEmpty()) {
+                    break;
+                }
+                System.out.println("Error: Vendor cannot be empty");
+            } catch (NumberFormatException e) {
+                System.out.println("Error: invalid input.");
+            }
+        }
+
+        while (true) {
+            try {
+                System.out.println("Amount to deposit: ");
+                amount = Double.parseDouble(scanner.nextLine());
+                if (amount > 0) {
+                    break;
+                }
+                System.out.println("Error: Amount must be greater than zero.");
+            } catch (NumberFormatException e) {
+                System.out.println("Error: invalid input.");
+            }
+        }
+
+        Transaction newDeposit =
+                new Transaction(date, time, description, vendor, amount);
+
+
+        writeToFile(newDeposit);
+
+        ledger.add(newDeposit);
     }
 
     /**
@@ -135,6 +180,18 @@ public class FinancialTracker {
      */
     private static void addPayment(Scanner scanner) {
         // TODO
+    }
+
+
+    private static void writeToFile(Transaction transaction){
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("transactions.csv", true));
+            bufferedWriter.newLine();
+            bufferedWriter.write(transaction.toString());
+            bufferedWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /* ------------------------------------------------------------------

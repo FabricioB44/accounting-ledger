@@ -5,16 +5,16 @@ import java.nio.charset.StandardCharsets;
 public class Transaction {
     private String date;
     private String time;
-    private String memo;
-    private String recipient;
+    private String description;
+    private String vendor;
     private double amount;
 
 
-    public Transaction(String date, String time, String memo, String recipient, double amount) {
+    public Transaction(String date, String time, String description, String vendor, double amount) {
         this.date = date;
         this.time = time;
-        this.memo = memo;
-        this.recipient = recipient;
+        this.description = description;
+        this.vendor = vendor;
         this.amount = amount;
     }
 
@@ -26,12 +26,12 @@ public class Transaction {
         this.time = time;
     }
 
-    public void setMemo(String memo) {
-        this.memo = memo;
+    public void setdescription(String description) {
+        this.description = description;
     }
 
-    public void setRecipient(String recipient) {
-        this.recipient = recipient;
+    public void setvendor(String vendor) {
+        this.vendor = vendor;
     }
 
     public void setAmount(double amount) {
@@ -46,12 +46,12 @@ public class Transaction {
         return time;
     }
 
-    public String getMemo() {
-        return memo;
+    public String getdescription() {
+        return description;
     }
 
-    public String getRecipient() {
-        return recipient;
+    public String getvendor() {
+        return vendor;
     }
 
     public double getAmount() {
@@ -60,11 +60,11 @@ public class Transaction {
 
     public String toString() {
         return String.format(
-                "Date: %s | Time: %s | Memo: %s | Recipient: %s | Amount: %.2f",
+                "%s|%s|%s|%s|%.2f",
                 date,
                 time,
-                memo,
-                recipient,
+                description,
+                vendor,
                 amount
         );
     }
