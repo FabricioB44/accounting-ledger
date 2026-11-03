@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -191,10 +190,13 @@ public class FinancialTracker {
     }
 
     private static void displayLedger(String transactionFilter, String dateFilter) {
-        List<Transaction> filteredLedger = List.of();
+        List<Transaction> filteredLedger = ledger;
+        if (transactionFilter != null){
+            filteredLedger = filterByTransaction(filteredLedger, transactionFilter);
+        }
 
         if (dateFilter != null){
-            filteredLedger = filterTransactionsByDate(ledger, dateFilter);
+            filteredLedger = filterTransactionsByDate(filteredLedger, dateFilter);
         }
 
 
@@ -213,21 +215,12 @@ public class FinancialTracker {
         System.out.println("-----------------------------------------------------------------------------------------");
 
         for (Transaction transaction : filteredLedger) {
-            double amount = transaction.getAmount();
-            if ("Deposit".equals(transactionFilter) && amount <= 0) {
-                continue;
-            }
-
-            if ("Payment".equals(transactionFilter) && amount >= 0) {
-                continue;
-            }
-
             System.out.printf("%-12s %-12s %-30s %-20s $%-10.2f%n",
                     transaction.getDate(),
                     transaction.getTime(),
-                    transaction.getdescription(),
-                    transaction.getvendor(),
-                    amount);
+                    transaction.getDescription(),
+                    transaction.getVendor(),
+                    transaction.getAmount());
         }
     }
 
@@ -268,6 +261,28 @@ public class FinancialTracker {
 
         //return();
     //}
+
+    private static ArrayList<Transaction> filterByTransaction(
+            List<Transaction> transactions,
+            String transactionFilter) {
+
+        ArrayList<Transaction> filteredTransactions = new ArrayList<>();
+
+        for (Transaction transaction : transactions) {
+            double amount = transaction.getAmount();
+            if ("Deposit".equals(transactionFilter) && amount <= 0) {
+                continue;
+            }
+
+            if ("Payment".equals(transactionFilter) && amount >= 0) {
+                continue;
+            }
+
+            filteredTransactions.add(transaction);
+        }
+
+        return filteredTransactions;
+    }
 
 
     private static ArrayList<Transaction> filterTransactionsByDate(

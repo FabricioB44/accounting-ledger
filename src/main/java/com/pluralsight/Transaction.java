@@ -1,7 +1,5 @@
 package com.pluralsight;
 
-import java.nio.charset.StandardCharsets;
-
 public class Transaction {
     private String date;
     private String time;
@@ -26,11 +24,11 @@ public class Transaction {
         this.time = time;
     }
 
-    public void setdescription(String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public void setvendor(String vendor) {
+    public void setVendor(String vendor) {
         this.vendor = vendor;
     }
 
@@ -46,11 +44,11 @@ public class Transaction {
         return time;
     }
 
-    public String getdescription() {
+    public String getDescription() {
         return description;
     }
 
-    public String getvendor() {
+    public String getVendor() {
         return vendor;
     }
 
