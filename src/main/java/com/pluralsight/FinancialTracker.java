@@ -180,8 +180,8 @@ public class FinancialTracker {
 
             switch (input.toUpperCase()) {
                 case "A" -> displayLedger(null, null, null, null, scanner);
-                case "D" -> displayLedger("Deposit", null, null, null, scanner);
-                case "P" -> displayLedger("Payment", null, null, null, scanner);
+                case "D" -> displayLedger("Deposits", null, null, null, scanner);
+                case "P" -> displayLedger("Payments", null, null, null, scanner);
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
                 default -> System.out.println("Invalid option");
@@ -195,8 +195,16 @@ public class FinancialTracker {
             filteredLedger = filterByTransaction(filteredLedger, transactionFilter);
         }
 
+        if (filteredLedger.isEmpty()) {
+            return;
+        }
+
         if (dateFilter != null){
             filteredLedger = filterTransactionsByDate(filteredLedger, dateFilter);
+        }
+
+        if (filteredLedger.isEmpty()) {
+            return;
         }
 
         if (descriptionFilter != null){
@@ -274,15 +282,19 @@ public class FinancialTracker {
 
         for (Transaction transaction : transactions) {
             double amount = transaction.getAmount();
-            if ("Deposit".equals(transactionFilter) && amount <= 0) {
+            if ("Deposits".equals(transactionFilter) && amount <= 0) {
                 continue;
             }
 
-            if ("Payment".equals(transactionFilter) && amount >= 0) {
+            if ("Payments".equals(transactionFilter) && amount >= 0) {
                 continue;
             }
 
             filteredTransactions.add(transaction);
+        }
+
+        if (filteredTransactions.isEmpty()) {
+            System.out.printf("\nNo %s found.\n", transactionFilter.toLowerCase());
         }
 
         return filteredTransactions;
@@ -321,6 +333,11 @@ public class FinancialTracker {
                         .withDayOfYear(1)
                         .minusDays(1);
                 break;
+            default:
+                String[] dates = dateFilter.split("\\|");
+
+                startDate = LocalDate.parse(dates[0], DATE_FMT);
+                endDate = LocalDate.parse(dates[1], DATE_FMT);
         }
 
         ArrayList<Transaction> filteredTransactions = new ArrayList<>();
@@ -336,6 +353,10 @@ public class FinancialTracker {
             }
 
             filteredTransactions.add(transaction);
+        }
+
+        if (filteredTransactions.isEmpty()) {
+            System.out.println("\nNo matches found within that date range.");
         }
 
         return filteredTransactions;
@@ -375,20 +396,19 @@ public class FinancialTracker {
             filteredTransactions.add(transaction);
         }
 
+        if (filteredTransactions.isEmpty()) {
+            System.out.println("\nNo description match found.");
+        }
+
         return filteredTransactions;
     }
 
     private static void customSearch(Scanner scanner) {
-        System.out.println("\nCustom search.");
+        System.out.println("\nCustom search");
         String transactionFilter = null;
         String dateFilter = null;
         String descriptionFilter = null;
         String vendorFilter = null;
-        System.out.println("Transaction type: ");
-        System.out.println("A) All");
-        System.out.println("D) Deposits");
-        System.out.println("P) Payments");
-
 
         while (true) {
             System.out.println("Transaction type: ");
@@ -399,8 +419,8 @@ public class FinancialTracker {
 
             switch (input.toUpperCase()) {
                 case "A" -> transactionFilter = null;
-                case "D" -> transactionFilter = "Deposit";
-                case "P" -> transactionFilter = "Payment";
+                case "D" -> transactionFilter = "Deposits";
+                case "P" -> transactionFilter = "Payments";
                 default -> {
                     System.out.println("Invalid option, try again.");
                     continue;
@@ -411,7 +431,7 @@ public class FinancialTracker {
         }
 
         while (true) {
-            System.out.println("Date range:");
+            System.out.println("\nDate range:");
             System.out.println("1) All Dates");
             System.out.println("2) Month To Date");
             System.out.println("3) Previous Month");
@@ -424,9 +444,9 @@ public class FinancialTracker {
                 case "1" -> dateFilter = null;
                 case "2" -> dateFilter = "MonthToDate";
                 case "3" -> dateFilter = "PrevMonth";
-                case "4" -> dateFilter = "YearToDate-";
+                case "4" -> dateFilter = "YearToDate";
                 case "5" -> dateFilter = "PrevYear";
-                case "6" -> dateFilter = "Custom";
+                case "6" -> dateFilter = customDateInput(scanner);
                 default -> {
                     System.out.println("Invalid option, try again.");
                     continue;
@@ -436,19 +456,45 @@ public class FinancialTracker {
             break;
         }
 
-        System.out.print("Description: ");
+        if (dateFilter.equals("Invalid input")) {
+            return;
+        }
+
+        System.out.print("\nDescription: ");
         String descriptionInput = scanner.nextLine().trim();
         if (!descriptionInput.isEmpty()) {
             descriptionFilter = descriptionInput;
         }
 
-        System.out.print("Vendor: ");
+        System.out.print("\nVendor: ");
         String vendorInput = scanner.nextLine().trim();
         if (!vendorInput.isEmpty()) {
             vendorFilter = vendorInput;
         }
 
         displayLedger(transactionFilter, dateFilter, descriptionFilter, vendorFilter, scanner);
+    }
+
+
+    private static String customDateInput(Scanner scanner) {
+        try {
+            System.out.println("\nPlease write the start and end date you'd like to search within:");
+
+            System.out.print("Start Date (yyyy-MM-dd): ");
+            String startDate = scanner.nextLine().trim();
+
+            System.out.print("End Date (yyyy-MM-dd): ");
+            String endDate = scanner.nextLine().trim();
+
+            LocalDate.parse(startDate, DATE_FMT);
+            LocalDate.parse(endDate, DATE_FMT);
+
+            return startDate + "|" + endDate;
+
+        } catch (DateTimeParseException e) {
+            System.out.println("Invalid date format.");
+            return "Invalid input";
+        }
     }
 
     /* ------------------------------------------------------------------
