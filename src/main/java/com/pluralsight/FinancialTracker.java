@@ -31,7 +31,7 @@ public class FinancialTracker {
         boolean running = true;
 
         while (running) {
-            System.out.println("Welcome to TransactionApp");
+            System.out.println("\nWelcome to TransactionApp");
             System.out.println("Choose an option:");
             System.out.println("D) Add Deposit");
             System.out.println("P) Make Payment (Debit)");
@@ -179,9 +179,9 @@ public class FinancialTracker {
             String input = scanner.nextLine().trim();
 
             switch (input.toUpperCase()) {
-                case "A" -> displayLedger(null, null);
-                case "D" -> displayLedger("Deposit", null);
-                case "P" -> displayLedger("Payment", null);
+                case "A" -> displayLedger(null, null, null, null, scanner);
+                case "D" -> displayLedger("Deposit", null, null, null, scanner);
+                case "P" -> displayLedger("Payment", null, null, null, scanner);
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
                 default -> System.out.println("Invalid option");
@@ -189,7 +189,7 @@ public class FinancialTracker {
         }
     }
 
-    private static void displayLedger(String transactionFilter, String dateFilter) {
+    private static void displayLedger(String transactionFilter, String dateFilter, String descriptionFilter, String vendorFilter, Scanner scanner) {
         List<Transaction> filteredLedger = ledger;
         if (transactionFilter != null){
             filteredLedger = filterByTransaction(filteredLedger, transactionFilter);
@@ -199,10 +199,23 @@ public class FinancialTracker {
             filteredLedger = filterTransactionsByDate(filteredLedger, dateFilter);
         }
 
+        if (descriptionFilter != null){
+            filteredLedger = filterTransactionsByDescription(filteredLedger, descriptionFilter);
+        }
 
-        List<Transaction> sortedLedger = new ArrayList<>(ledger);
+        if (filteredLedger.isEmpty()) {
+            return;
+        }
 
-        sortedLedger.sort(
+        if (vendorFilter != null){
+            filteredLedger = filterTransactionsByVendor(filteredLedger, vendorFilter, scanner);
+        }
+
+        if (filteredLedger.isEmpty()) {
+            return;
+        }
+
+        filteredLedger.sort(
                 Comparator.comparing((Transaction transaction) ->
                                 LocalDateTime.parse(
                                         transaction.getDate() + " " + transaction.getTime(),
@@ -241,26 +254,17 @@ public class FinancialTracker {
             String input = scanner.nextLine().trim();
 
             switch (input) {
-                case "1" -> displayLedger(null, "MonthToDate");
-                case "2" -> displayLedger(null, "PrevMonth");
-                case "3" -> displayLedger(null, "YearToDate");
-                case "4" -> displayLedger(null, "PrevYear");
-                // case "5" -> filterTransactionsByDate();
-                // case "6" -> customSearch(scanner);
+                case "1" -> displayLedger(null, "MonthToDate", null, null, scanner);
+                case "2" -> displayLedger(null, "PrevMonth", null, null, scanner);
+                case "3" -> displayLedger(null, "YearToDate", null, null, scanner);
+                case "4" -> displayLedger(null, "PrevYear", null, null, scanner);
+                case "5" -> displayLedger(null, null, null, "DefaultFilter", scanner);
+                case "6" -> customSearch(scanner);
                 case "0" -> running = false;
                 default -> System.out.println("Invalid option");
             }
         }
     }
-
-    /* ------------------------------------------------------------------
-       Reporting helpers
-       ------------------------------------------------------------------ */
-    // private static ArrayList<Transaction> filterByTransactions(List<Transaction> transactions,
-    //                                                           String transactionFilter) {
-
-        //return();
-    //}
 
     private static ArrayList<Transaction> filterByTransaction(
             List<Transaction> transactions,
@@ -337,13 +341,114 @@ public class FinancialTracker {
         return filteredTransactions;
     }
 
-    private static void filterTransactionsByVendor(String vendor) {
-        // TODO – iterate transactions, print those with matching vendor
+    private static ArrayList<Transaction> filterTransactionsByVendor(List<Transaction> transactions, String vendorFilter, Scanner scanner) {
+        ArrayList<Transaction> filteredTransactions = new ArrayList<>();
+
+        if (vendorFilter.equals("DefaultFilter")) {
+            System.out.print("Vendor name: ");
+            vendorFilter = scanner.nextLine().trim();
+        }
+
+        for (Transaction transaction : transactions) {
+
+            if (!transaction.getVendor().equalsIgnoreCase(vendorFilter)) {
+                continue;
+            }
+
+            filteredTransactions.add(transaction);
+        }
+
+        if (filteredTransactions.isEmpty()) {
+            System.out.println("\nNo vendor match found.");
+        }
+
+        return filteredTransactions;
+    }
+
+    private static ArrayList<Transaction> filterTransactionsByDescription(List<Transaction> transactions, String descriptionFilter) {
+        ArrayList<Transaction> filteredTransactions = new ArrayList<>();
+
+        for (Transaction transaction : transactions) {
+            if (!transaction.getDescription().equalsIgnoreCase(descriptionFilter)) {
+                continue;
+            }
+            filteredTransactions.add(transaction);
+        }
+
+        return filteredTransactions;
     }
 
     private static void customSearch(Scanner scanner) {
-        // TODO – prompt for any combination of date range, description,
-        //        vendor, and exact amount, then display matches
+        System.out.println("\nCustom search.");
+        String transactionFilter = null;
+        String dateFilter = null;
+        String descriptionFilter = null;
+        String vendorFilter = null;
+        System.out.println("Transaction type: ");
+        System.out.println("A) All");
+        System.out.println("D) Deposits");
+        System.out.println("P) Payments");
+
+
+        while (true) {
+            System.out.println("Transaction type: ");
+            System.out.println("A) All Transactions");
+            System.out.println("D) Deposits");
+            System.out.println("P) Payments");
+            String input = scanner.nextLine().trim();
+
+            switch (input.toUpperCase()) {
+                case "A" -> transactionFilter = null;
+                case "D" -> transactionFilter = "Deposit";
+                case "P" -> transactionFilter = "Payment";
+                default -> {
+                    System.out.println("Invalid option, try again.");
+                    continue;
+                }
+            }
+
+            break;
+        }
+
+        while (true) {
+            System.out.println("Date range:");
+            System.out.println("1) All Dates");
+            System.out.println("2) Month To Date");
+            System.out.println("3) Previous Month");
+            System.out.println("4) Year To Date");
+            System.out.println("5) Previous Year");
+            System.out.println("6) Custom Date Range");
+            String input = scanner.nextLine().trim();
+
+            switch (input.toUpperCase()) {
+                case "1" -> dateFilter = null;
+                case "2" -> dateFilter = "MonthToDate";
+                case "3" -> dateFilter = "PrevMonth";
+                case "4" -> dateFilter = "YearToDate-";
+                case "5" -> dateFilter = "PrevYear";
+                case "6" -> dateFilter = "Custom";
+                default -> {
+                    System.out.println("Invalid option, try again.");
+                    continue;
+                }
+            }
+
+            break;
+        }
+
+        System.out.print("Description: ");
+        String descriptionInput = scanner.nextLine().trim();
+        if (!descriptionInput.isEmpty()) {
+            descriptionFilter = descriptionInput;
+        }
+
+        System.out.print("Vendor: ");
+        String vendorInput = scanner.nextLine().trim();
+        if (!vendorInput.isEmpty()) {
+            vendorFilter = vendorInput;
+        }
+
+        displayLedger(transactionFilter, dateFilter, descriptionFilter, vendorFilter, scanner);
     }
 
     /* ------------------------------------------------------------------
