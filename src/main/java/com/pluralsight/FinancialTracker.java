@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -88,21 +89,61 @@ public class FinancialTracker {
         String description = null;
         String vendor = null;
         double amount = 0.00;
+        boolean scheduling;
 
         while (true) {
-            try {
-                System.out.printf("\nPlease write the date + time you would like to make the %s (yyyy-MM-dd HH:mm:ss): \n", transactionType.toLowerCase());
-                String dateTime = scanner.nextLine();
-                LocalDateTime dateTimeObj = LocalDateTime.parse(dateTime, DATETIME_FMT);
+            System.out.printf("\nWould you like to make this %s now or schedule it for a later date?: \n", transactionType.toLowerCase());
+            System.out.println("1) Now");
+            System.out.println("2) Schedule");
+            System.out.println("0) Reports Menu");
+            String input = scanner.nextLine().trim();
 
-                date = dateTimeObj.format(DATE_FMT);
-                time = dateTimeObj.format(TIME_FMT);
-                break;
+            switch (input.toUpperCase()) {
+                case "1" -> scheduling = false;
+                case "2" -> scheduling = true;
+                case "0" -> {
+                    return;
+                }
+                default -> {
+                    System.out.println("\nInvalid option\n");
+                    continue;
+                }
+            }
+
+            break;
+        }
+
+        LocalDateTime dateTimeObj;
+
+        if (scheduling) {
+            try {
+                System.out.printf(
+                        "\nInput desired date of %s (yyyy-MM-dd): ",
+                        transactionType.toLowerCase());
+
+                String dateInput = scanner.nextLine();
+
+                System.out.print("Input desired time of day (HH:mm:ss): ");
+                String timeInput = scanner.nextLine();
+
+                LocalDate datePart =
+                        LocalDate.parse(dateInput, DATE_FMT);
+
+                LocalTime timePart =
+                        LocalTime.parse(timeInput, TIME_FMT);
+
+                dateTimeObj = LocalDateTime.of(datePart, timePart);
+
             } catch (DateTimeParseException e) {
-                System.out.println("Error: invalid date/time format.");
+                System.out.println("\nError: invalid date or time.");
                 return;
             }
+        } else {
+            dateTimeObj = LocalDateTime.now();
         }
+
+        date = dateTimeObj.format(DATE_FMT);
+        time = dateTimeObj.format(TIME_FMT);
 
         while (true) {
             try {
