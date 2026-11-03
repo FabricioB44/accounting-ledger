@@ -31,13 +31,41 @@ public class FinancialTracker {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
+        System.out.println("""
+════════════════════════════════════════════════════════════════════
+                         🚚 MateTruck 🚚
+      Empanadas • Yerba Mate • Milanesas • Pizzas • Helado
+════════════════════════════════════════════════════════════════════
+
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⢸⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⢟⣥⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠈⢿⣿⣷⣄⠀⠀⠀⠀⠀⢀⣴⣿⣴⠟⣡⡾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠹⣿⣿⣷⣄⠀⠀⠀⣸⣿⣿⣿⡾⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠈⠻⠿⣿⣷⣄⠰⡿⠛⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⣠⣌⠻⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⢀⣀⣀⣀⣀⣉⣉⣉⣀⣉⣉⣁⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⢸⠏⢉⣉⡉⠉⣉⣉⠉⣉⣉⠉⣉⣉⡉⠹⡇⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠘⠀⠿⠿⠃⠸⠿⠿⠀⠿⠿⠀⠹⠿⠿⠀⠁⢸⠿⠿⠷⠦⠀⠀⠀⠀⠀⠀⠀
+                ⠀⢰⡆⠀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡆⢸⠀⣶⣶⣶⣆⠀⠀⠀⠀⠀⠀
+                ⠀⢸⡇⢠⣤⣥⣤⣤⣤⣤⣤⣤⣤⣤⣤⡄⢸⡇⢸⠀⠛⠛⠛⠛⠃⠀⠀⠀⠀⠀
+                ⠀⢸⣧⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣼⡇⢸⣿⣿⣿⣿⣿⣿⣿⣶⣶⡄⠀
+                ⠀⠘⢿⣿⣿⡿⠛⠛⠻⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⡿⠛⠛⠛⢿⡇⠀
+                ⠀⠀⠀⠈⠉⠀⣾⣿⡆⠈⠉⠉⠉⠉⠉⠉⠉⠁⠈⠉⠉⠉⠉⠀⢾⣿⡇⠈⠁⠀
+                ⠀⠀⠀⠀⠀⠀ ⠈⠉⠀⠀    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀
+        
+                  Welcome to MateTruck's Ledger!
+              Track revenues, expenses and reports.
+
+════════════════════════════════════════════════════════════════════
+""");
+
         while (running) {
-            System.out.println("\nWelcome to TransactionApp");
-            System.out.println("Choose an option:");
-            System.out.println("1) Add Deposit");
-            System.out.println("2) Make Payment (Debit)");
-            System.out.println("3) Ledger Menu");
-            System.out.println("0) Exit");
+            System.out.println("\n════════════ 🚚 Truck Menu 🚚 ════════════");
+            System.out.println("What would you like to do?");
+            System.out.println("1) Record Revenue (Deposits)");
+            System.out.println("2) Record Expense (Payments)");
+            System.out.println("3) Open Ledger Menu");
+            System.out.println("0) Close Truck");
 
             String input = scanner.nextLine().trim();
 
@@ -50,6 +78,16 @@ public class FinancialTracker {
             }
         }
         scanner.close();
+
+        System.out.println("""
+════════════════════════════════════════════════════════════════════
+
+                  🚚 MateTruck is closing up! 🚚
+
+            Safe travels and see you on the next route!!
+
+════════════════════════════════════════════════════════════════════
+""");
     }
 
     public static void loadTransactions(String fileName) {
@@ -92,10 +130,10 @@ public class FinancialTracker {
         boolean scheduling;
 
         while (true) {
-            System.out.printf("\nWould you like to make this %s now or schedule it for a later date?: \n", transactionType.toLowerCase());
+            System.out.printf("\nWould you like to make this %s now or schedule it for a later date? \n", transactionType.toLowerCase());
             System.out.println("1) Now");
             System.out.println("2) Schedule");
-            System.out.println("0) Reports Menu");
+            System.out.println("0) Back to Ledger Menu");
             String input = scanner.nextLine().trim();
 
             switch (input.toUpperCase()) {
@@ -212,13 +250,13 @@ public class FinancialTracker {
     private static void ledgerMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("\nLedger");
-            System.out.println("Choose an option:");
-            System.out.println("1) All");
-            System.out.println("2) Deposits");
-            System.out.println("3) Payments");
-            System.out.println("4) Reports");
-            System.out.println("0) Home Menu");
+            System.out.println("\n════════════ \uD83D\uDCD2 Ledger Menu \uD83D\uDCD2 ════════════");
+            System.out.println("What would you like to do?");
+            System.out.println("1) Display all transactions");
+            System.out.println("2) Display revenues (Deposits)");
+            System.out.println("3) Display expenses (Payments)");
+            System.out.println("4) Open Reports Menu");
+            System.out.println("0) Truck Menu");
 
             String input = scanner.nextLine().trim();
 
@@ -275,12 +313,12 @@ public class FinancialTracker {
                         .reversed()
         );
 
-        System.out.printf("\n%-12s %-12s %-30s %-20s %-10s%n",
+        System.out.printf("\n%-12s %-12s %-34s %-30s %-10s%n",
                 "DATE", "TIME", "DESCRIPTION", "VENDOR", "AMOUNT");
-        System.out.println("-----------------------------------------------------------------------------------------");
+        System.out.println("═══════════════════════════════════════════════════════════════════════════════════════════════════════════");
 
         for (Transaction transaction : filteredLedger) {
-            System.out.printf("%-12s %-12s %-30s %-20s $%-10.2f%n",
+            System.out.printf("%-12s %-12s %-34s %-30s $%-10.2f%n",
                     transaction.getDate(),
                     transaction.getTime(),
                     transaction.getDescription(),
@@ -293,7 +331,7 @@ public class FinancialTracker {
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("\nReports");
+            System.out.println("\n════════════ \uD83D\uDCCA Reports Menu \uD83D\uDCCA ════════════");
             System.out.println("Choose an option:");
             System.out.println("1) Month To Date");
             System.out.println("2) Previous Month");
@@ -301,7 +339,7 @@ public class FinancialTracker {
             System.out.println("4) Previous Year");
             System.out.println("5) Search by Vendor");
             System.out.println("6) Custom Search");
-            System.out.println("0) Ledger Menu");
+            System.out.println("0) Back to Ledger Menu");
 
             String input = scanner.nextLine().trim();
 
@@ -457,9 +495,9 @@ public class FinancialTracker {
         while (true) {
             System.out.println("Choose transaction type: ");
             System.out.println("1) All Transactions");
-            System.out.println("2) Deposits");
-            System.out.println("3) Payments");
-            System.out.println("0) Reports Menu");
+            System.out.println("2) Revenues (Deposits)");
+            System.out.println("3) Expenses (Payments)");
+            System.out.println("0) Back to Reports Menu");
             String input = scanner.nextLine().trim();
 
             switch (input.toUpperCase()) {
@@ -486,7 +524,7 @@ public class FinancialTracker {
             System.out.println("4) Year To Date");
             System.out.println("5) Previous Year");
             System.out.println("6) Custom Date Range");
-            System.out.println("0) Reports Menu");
+            System.out.println("0) Back to Reports Menu");
             String input = scanner.nextLine().trim();
 
             switch (input.toUpperCase()) {
