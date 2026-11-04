@@ -8,6 +8,7 @@ public class Transaction {
     private double amount;
 
 
+    // used to load transaction info from transactions.csv into the ledger array list
     public Transaction(String date, String time, String description, String vendor, double amount) {
         this.date = date;
         this.time = time;
@@ -16,6 +17,7 @@ public class Transaction {
         this.amount = amount;
     }
 
+    // Individual setters aren't used in this code as of now, but I defined them just in case
     public void setDate(String date) {
         this.date = date;
     }
@@ -36,6 +38,8 @@ public class Transaction {
         this.amount = amount;
     }
 
+
+    // All getters are used to display each value when user opens the ledger
     public String getDate() {
         return date;
     }
@@ -56,6 +60,8 @@ public class Transaction {
         return amount;
     }
 
+
+    // Used to parse new transactions back to the transactions.csv file
     public String toString() {
         return String.format(
                 "%s|%s|%s|%s|%.2f",

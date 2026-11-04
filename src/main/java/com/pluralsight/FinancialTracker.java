@@ -25,6 +25,8 @@ public class FinancialTracker {
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern(TIME_PATTERN);
     private static final DateTimeFormatter DATETIME_FMT = DateTimeFormatter.ofPattern(DATETIME_PATTERN);
 
+
+    // Main menu plus silly drawings because why not
     public static void main(String[] args) {
         loadTransactions(FILE_NAME);
 
@@ -90,6 +92,8 @@ public class FinancialTracker {
 """);
     }
 
+
+    // Loads transactions.csv and parses it to a ledger array list
     public static void loadTransactions(String fileName) {
         try {
             ledger.clear();
@@ -121,6 +125,7 @@ public class FinancialTracker {
         }
     }
 
+    // Adds new transaction to the ledger, works for both deposits and payments based on the transactionType value
     private static void addTransaction(Scanner scanner, String transactionType) {
         String date = null;
         String time = null;
@@ -156,13 +161,14 @@ public class FinancialTracker {
         if (scheduling) {
             try {
                 System.out.printf(
-                        "\nInput desired date of %s (yyyy-MM-dd): ",
+                        "\nInput desired date of %s (YYYY-MM-DD): ",
                         transactionType.toLowerCase());
 
                 String dateInput = scanner.nextLine();
 
-                System.out.print("Input desired time of day (HH:mm:ss): ");
+                System.out.print("Input desired time of day (HH-MM-SS): ");
                 String timeInput = scanner.nextLine();
+                timeInput = timeInput.replace('-', ':');
 
                 LocalDate datePart =
                         LocalDate.parse(dateInput, DATE_FMT);
@@ -236,6 +242,8 @@ public class FinancialTracker {
         System.out.printf("\n%s made successfully!\n", transactionType);
     }
 
+
+    // Updates transactions.csv file with new added deposits/payments
     private static void writeToFile(Transaction transaction){
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("transactions.csv", true));
@@ -247,6 +255,7 @@ public class FinancialTracker {
         }
     }
 
+    // displays menu and calls fitting method based on user input
     private static void ledgerMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
@@ -271,30 +280,21 @@ public class FinancialTracker {
         }
     }
 
+
+    // Single method for displaying the ledger, receives multiple arguments based on the filters selected by the user, then calls their respective helper methods. Sends you back to menu if no matches
     private static void displayLedger(String transactionFilter, String dateFilter, String descriptionFilter, String vendorFilter, Scanner scanner) {
-        List<Transaction> filteredLedger = ledger;
+        List<Transaction> filteredLedger = new ArrayList<>(ledger);
+
         if (transactionFilter != null){
             filteredLedger = filterByTransaction(filteredLedger, transactionFilter);
-        }
-
-        if (filteredLedger.isEmpty()) {
-            return;
         }
 
         if (dateFilter != null){
             filteredLedger = filterTransactionsByDate(filteredLedger, dateFilter);
         }
 
-        if (filteredLedger.isEmpty()) {
-            return;
-        }
-
         if (descriptionFilter != null){
             filteredLedger = filterTransactionsByDescription(filteredLedger, descriptionFilter);
-        }
-
-        if (filteredLedger.isEmpty()) {
-            return;
         }
 
         if (vendorFilter != null){
@@ -302,6 +302,7 @@ public class FinancialTracker {
         }
 
         if (filteredLedger.isEmpty()) {
+            System.out.println("\nNo matching transactions found.");
             return;
         }
 
@@ -328,6 +329,7 @@ public class FinancialTracker {
     }
 
 
+    // Pretty similar to ledgerMenu in terms of function
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
@@ -356,6 +358,7 @@ public class FinancialTracker {
         }
     }
 
+    // receives ledger array lists and filters it to keep only deposits or payments depending on user input, if no matches found prints error message.
     private static ArrayList<Transaction> filterByTransaction(
             List<Transaction> transactions,
             String transactionFilter) {
@@ -383,6 +386,7 @@ public class FinancialTracker {
     }
 
 
+    // receives ledger array list and filters transactions to keep only the ones within the either preselected date ranges or a custom one chosen by user, if no matches found prints error message.
     private static ArrayList<Transaction> filterTransactionsByDate(
             List<Transaction> transactions,
             String dateFilter) {
@@ -444,6 +448,8 @@ public class FinancialTracker {
         return filteredTransactions;
     }
 
+    // receives ledger array list and keeps only the transactions with the matching vendor inputted by user.
+    // If user already specified the vendor in customSearch it filters automatically. If not it prompts them to specify vendor now. If no matches found it prints error message
     private static ArrayList<Transaction> filterTransactionsByVendor(List<Transaction> transactions, String vendorFilter, Scanner scanner) {
         ArrayList<Transaction> filteredTransactions = new ArrayList<>();
 
@@ -485,6 +491,7 @@ public class FinancialTracker {
         return filteredTransactions;
     }
 
+    // Prompts user to specify any desired transaction, date, description and vendor parameters, then calls displayLedger() with all the specified filters as arguments.
     private static void customSearch(Scanner scanner) {
         System.out.println("\nCustom search");
         String transactionFilter = null;
@@ -546,7 +553,7 @@ public class FinancialTracker {
             break;
         }
 
-        if (dateFilter.equals("Invalid input")) {
+        if ("Invalid input".equals(dateFilter)) {
             return;
         }
 
@@ -566,6 +573,7 @@ public class FinancialTracker {
     }
 
 
+    // used in customSearch(), makes sure user input fits into date format, then turns it back into a string so it can be passed as a filter argument
     private static String customDateInput(Scanner scanner) {
         try {
             System.out.println("\nCustom date range");
@@ -587,16 +595,4 @@ public class FinancialTracker {
         }
     }
 
-    /* ------------------------------------------------------------------
-       Utility parsers (you can reuse in many places)
-       ------------------------------------------------------------------ */
-    private static LocalDate parseDate(String s) {
-        /* TODO – return LocalDate or null */
-        return null;
-    }
-
-    private static Double parseDouble(String s) {
-        /* TODO – return Double   or null */
-        return null;
-    }
 }
